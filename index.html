@@ -25,7 +25,7 @@
         var options = {
             enableHightAccuracy: true,
             maximumAge: 0,
-            timeout: 180 * 1000
+            timeout: 3 * 60 * 1000
         }
 
         function successCallback(position) {
@@ -35,7 +35,7 @@
             var accuracy = position.coords.accuracy;
             var altitudeAccuracy = position.coords.altitudeAccuracy;
             var heading = position.coords.heading;
-            var speed = position.coords.speed * 1000 / 3600;
+            var speed = position.coords.speed * 3600 / 1000;
             var timestamp = position.timestamp;
             var successDate = new Date(timestamp);
 
