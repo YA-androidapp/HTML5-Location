@@ -1,0 +1,169 @@
+<!doctype html>
+<html ⚡ lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+    <title>HTML5-Location</title>
+    <link rel="canonical" href="https://amp.dev/documentation/guides-and-tutorials/start/create/basic_markup/">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+    <script type="application/ld+json">
+        {
+            "@context": "http://schema.org",
+            "@type": "NewsArticle",
+            "headline": "HTML5-Location",
+            "datePublished": "2019-07-19T00:00:00Z",
+            "image": [
+                "logo.png"
+            ]
+        }
+    </script>
+
+    <script type="text/javascript">
+        var watchId = null;
+
+        var options = {
+            enableHightAccuracy: true,
+            maximumAge: 0,
+            timeout: 180 * 1000
+        }
+
+        function successCallback(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            var altitude = position.coords.altitude;
+            var accuracy = position.coords.accuracy;
+            var altitudeAccuracy = position.coords.altitudeAccuracy;
+            var heading = position.coords.heading;
+            var speed = position.coords.speed * 1000 / 3600;
+            var timestamp = position.timestamp;
+            var successDate = new Date(timestamp);
+
+            var result = "";
+            result += "日時：" + successDate.toLocaleString() + "\t";
+            result += "経緯度：" + latitude + "," + longitude + " (" + accuracy + "m)\t";
+            result += "高度：" + altitude + "m(" + altitudeAccuracy + "m)\t";
+            result += "方角：" + heading + "deg\t";
+            result += "速度：" + speed + " km/h";
+
+            document.getElementById("message").innerHTML += result + "\n"
+        }
+
+        function errorCallback(positionError) {
+            var result = "";
+            var code = positionError.code;
+            var message = positionError.message;
+            switch (code) {
+                case positionError.PERMISSION_DENIED:
+                    result += "PERMISSION_DENIED";
+                    break;
+
+                case positionError.POSITION_UNAVAILABLE:
+                    result += "POSITION_UNAVAILABLE";
+                    break;
+
+                case positionError.TIMEOUT:
+                    result += "TIMEOUT";
+                    break;
+            }
+
+            document.getElementById("message").innerHTML += message + "\n";
+        }
+
+        function start() {
+            if (watchId == null) {
+                document.getElementById("message").innerHTML = "";
+                if (navigator.geolocation) {
+                    watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
+                } else {
+                    alert("Geolocation not supported in this browser");
+                }
+            }
+        }
+
+        function stop() {
+            if (watchId != null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+        }
+    </script>
+
+    <style amp-boilerplate>
+        body {
+            -webkit-animation: -amp-start 8s steps(1, end) 0s 1 normal both;
+            -moz-animation: -amp-start 8s steps(1, end) 0s 1 normal both;
+            -ms-animation: -amp-start 8s steps(1, end) 0s 1 normal both;
+            animation: -amp-start 8s steps(1, end) 0s 1 normal both
+        }
+
+        @-webkit-keyframes -amp-start {
+            from {
+                visibility: hidden
+            }
+
+            to {
+                visibility: visible
+            }
+        }
+
+        @-moz-keyframes -amp-start {
+            from {
+                visibility: hidden
+            }
+
+            to {
+                visibility: visible
+            }
+        }
+
+        @-ms-keyframes -amp-start {
+            from {
+                visibility: hidden
+            }
+
+            to {
+                visibility: visible
+            }
+        }
+
+        @-o-keyframes -amp-start {
+            from {
+                visibility: hidden
+            }
+
+            to {
+                visibility: visible
+            }
+        }
+
+        @keyframes -amp-start {
+            from {
+                visibility: hidden
+            }
+
+            to {
+                visibility: visible
+            }
+        }
+    </style>
+    <noscript>
+        <style amp-boilerplate>
+            body {
+                -webkit-animation: none;
+                -moz-animation: none;
+                -ms-animation: none;
+                animation: none
+            }
+        </style>
+    </noscript>
+
+</head>
+
+<body>
+    <button onclick="start()">Start</button>
+    <button onclick="stop()">Stop</button>
+    <div id="message"></div>
+</body>
+
+</html>
