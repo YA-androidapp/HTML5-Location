@@ -1,5 +1,5 @@
 <!doctype html>
-<html ⚡ lang="ja">
+<html ? lang="ja">
 
 <head>
     <meta charset="utf-8">
@@ -7,77 +7,9 @@
     <title>HTML5-Location</title>
     <link rel="canonical" href="https://amp.dev/documentation/guides-and-tutorials/start/create/basic_markup/">
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-
-
-    <script type="text/javascript">
-        var watchId = null;
-
-        var options = {
-            enableHighAccuracy: true,
-            maximumAge: 0,
-            timeout: 180000
-        }
-
-        function successCallback(position) {
-            var latitude = position.coords.latitude;
-            var longitude = position.coords.longitude;
-            var altitude = (null == position.coords.altitude) ? " - " : position.coords.altitude;
-            var accuracy = position.coords.accuracy;
-            var altitudeAccuracy = (null == position.coords.altitudeAccuracy) ? " - " : position.coords.altitudeAccuracy;
-            var heading = ((null == position.coords.heading) || isNaN(position.coords.heading)) ? " - " : position.coords.heading; // If speed is 0, heading is NaN. If the device is unable to provide heading information, this value is null.
-            var speed = (null == position.coords.speed) ? " - " : position.coords.speed * 3600 / 1000;
-            var timestamp = position.timestamp;
-            var successDate = new Date(timestamp);
-
-            var result = "";
-            result += "日時：" + successDate.toLocaleString() + "\t";
-            result += "経緯度：" + latitude + "," + longitude + " (" + accuracy + "m)\t";
-            result += "高度：" + altitude + "m(" + altitudeAccuracy + "m)\t";
-            result += "方角：" + heading + "deg\t";
-            result += "速度：" + speed + " km/h";
-
-            document.getElementById("message").innerHTML += result + "\n";
-        }
-
-        function errorCallback(positionError) {
-            var result = "";
-            var code = positionError.code;
-            var message = positionError.message;
-            switch (code) {
-                case positionError.PERMISSION_DENIED:
-                    result = "PERMISSION_DENIED";
-                    break;
-
-                case positionError.POSITION_UNAVAILABLE:
-                    result = "POSITION_UNAVAILABLE";
-                    break;
-
-                case positionError.TIMEOUT:
-                    result = "TIMEOUT";
-                    break;
-            }
-
-            document.getElementById("message").innerHTML += result + "\t" + message + "\n";
-        }
-
-        function start() {
-            if (watchId == null) {
-                document.getElementById("message").innerHTML = "";
-                if (navigator.geolocation) {
-                    watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
-                } else {
-                    document.getElementById("message").innerHTML += "Geolocation not supported in this browser\n"
-                }
-            }
-        }
-
-        function stop() {
-            if (watchId != null) {
-                navigator.geolocation.clearWatch(watchId);
-                watchId = null;
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="css/leaflet.css" />
+    <link rel="stylesheet" href="font/css/all.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
 
     <style amp-boilerplate>
         body {
@@ -137,23 +69,112 @@
             }
         }
     </style>
-    <noscript>
-        <style amp-boilerplate>
-            body {
-                -webkit-animation: none;
-                -moz-animation: none;
-                -ms-animation: none;
-                animation: none
-            }
-        </style>
-    </noscript>
 
 </head>
 
 <body>
-    <button onclick="start()">Start</button>
-    <button onclick="stop()">Stop</button>
-    <div id="message"></div>
+    <div class="container-fluid" style="max-width:1200px">
+        <div class="row">
+            <div class="col-md-7">
+                <div id="map" style="height: 75vh"></div>
+            </div>
+            <div class="col-md-5">
+                <div>
+                    <button onclick="start()">Start</button>
+                    <button onclick="stop()">Stop</button>
+                </div>
+                <p>
+                    Progress: <span id="progress">***</span> / <span id="total">***</span>
+                </p>
+                <p>
+                    Current storage: <span id="storage"></span> files
+                    <button class="btn btn-danger" id="remove_tiles">
+                        <i class="fa fa-trash" aria-hidden="true" title="Remove tiles"></i>
+                    </button>
+                </p>
+            </div>
+            <div class="col-md-12">
+                <div id="message"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        var watchId = null;
+
+        var options = {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 180000
+        }
+
+        function successCallback(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            var altitude = (null == position.coords.altitude) ? " - " : position.coords.altitude;
+            var accuracy = position.coords.accuracy;
+            var altitudeAccuracy = (null == position.coords.altitudeAccuracy) ? " - " : position.coords.altitudeAccuracy;
+            var heading = ((null == position.coords.heading) || isNaN(position.coords.heading)) ? " - " : position.coords.heading; // If speed is 0, heading is NaN. If the device is unable to provide heading information, this value is null.
+            var speed = (null == position.coords.speed) ? " - " : position.coords.speed * 3600 / 1000;
+            var timestamp = position.timestamp;
+            var successDate = new Date(timestamp);
+
+            map.setView([latitude, longitude], 16);
+
+            var result = "";
+            result += "日時：" + successDate.toLocaleString() + "\t";
+            result += "経緯度：" + latitude + "," + longitude + " (" + accuracy + "m)\t";
+            result += "高度：" + altitude + "m(" + altitudeAccuracy + "m)\t";
+            result += "方角：" + heading + "deg\t";
+            result += "速度：" + speed + " km/h";
+
+            document.getElementById("message").innerHTML += result + "\n";
+        }
+
+        function errorCallback(positionError) {
+            var result = "";
+            var code = positionError.code;
+            var message = positionError.message;
+            switch (code) {
+                case positionError.PERMISSION_DENIED:
+                    result = "PERMISSION_DENIED";
+                    break;
+
+                case positionError.POSITION_UNAVAILABLE:
+                    result = "POSITION_UNAVAILABLE";
+                    break;
+
+                case positionError.TIMEOUT:
+                    result = "TIMEOUT";
+                    break;
+            }
+
+            document.getElementById("message").innerHTML += result + "\t" + message + "\n";
+        }
+
+        function start() {
+            if (watchId == null) {
+                document.getElementById("message").innerHTML = "";
+                if (navigator.geolocation) {
+                    watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
+                } else {
+                    document.getElementById("message").innerHTML += "Geolocation not supported in this browser\n"
+                }
+            }
+        }
+
+        function stop() {
+            if (watchId != null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+        }
+    </script>
+    <script type="text/javascript" src="js/leaflet.js"></script>
+    <script type="text/javascript" src="js/localforage.min.js"></script>
+    <script type="text/javascript" src="js/bundle.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
 </body>
 
 </html>
