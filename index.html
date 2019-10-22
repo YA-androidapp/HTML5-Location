@@ -18,6 +18,46 @@
             timeout: 180000
         }
 
+        window.addEventListener("devicemotion", function (evt) {
+            var now = new Date();
+
+            // 重力加速度を含んだ加速度
+            var gacc = evt.accelerationIncludingGravity;
+            var gx = gacc.x;
+            var gy = gacc.y;
+            var gz = gacc.z;
+
+            //加速度
+            var acc = evt.acceleration;
+            var x = acc.x;
+            var y = acc.y;
+            var z = acc.z;
+
+            //回転率
+            var rot = evt.rotationRate;
+            var a = rot.alpha; //z軸
+            var b = rot.beta; //x軸
+            var g = rot.gamma; // y軸
+
+            var result = "";
+            result += "日時：" + now.toLocaleString() + "\t";
+            result += "加速度:"
+            result += (null == gx ? " - " : gx) + ",";
+            result += (null == gy ? " - " : gy) + ",";
+            result += (null == gz ? " - " : gz) + "\t";
+            result += "加速度(補正):"
+            result += (null == x ? " - " : x) + ",";
+            result += (null == y ? " - " : y) + ",";
+            result += (null == z ? " - " : z) + "\t";
+            result += "回転率:"
+            result += (null == a ? " - " : a) + ",";
+            result += (null == b ? " - " : b) + ",";
+            result += (null == g ? " - " : g);
+
+            document.getElementById("message").innerHTML += result + "<br>\n";
+
+        }, true);
+
         function successCallback(position) {
             var latitude = position.coords.latitude;
             var longitude = position.coords.longitude;
@@ -36,7 +76,7 @@
             result += "方角：" + heading + "deg\t";
             result += "速度：" + speed + " km/h";
 
-            document.getElementById("message").innerHTML += result + "\n";
+            document.getElementById("message").innerHTML += result + "<br>\n";
         }
 
         function errorCallback(positionError) {
@@ -57,7 +97,7 @@
                     break;
             }
 
-            document.getElementById("message").innerHTML += result + "\t" + message + "\n";
+            document.getElementById("message").innerHTML += result + "\t" + message + "<br>\n";
         }
 
         function start() {
@@ -66,7 +106,7 @@
                 if (navigator.geolocation) {
                     watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
                 } else {
-                    document.getElementById("message").innerHTML += "Geolocation not supported in this browser\n"
+                    document.getElementById("message").innerHTML += "Geolocation not supported in this browser<br>\n"
                 }
             }
         }
